@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>VŠECrawler</title>
+
+    <style>
+        html, body, ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        ul#control_panel {
+            list-style: none;
+        }
+
+        div#control:not(.minimized) {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -110px;
+            margin-left: -90px;
+            width: 180px;
+            height: 220px;
+        }
+
+
+        div#control:not(.minimized) > ul#control_panel {
+            height: 100%;
+        }
+
+        div#control:not(.minimized) > ul#control_panel > li {
+            height: 23px;
+            font-size: 1.1em;
+            padding: 10px 0;
+        }
+
+        div#control:not(.minimized) > ul#control_panel > li > label {
+            float: left;
+        }
+
+        div#control:not(.minimized) > ul#control_panel > li > select,
+        div#control:not(.minimized) > ul#control_panel > li > input,
+        div#control:not(.minimized) > ul#control_panel > li > button {
+            float: right;
+        }
+
+        div#control.minimized {
+            background: #eee;
+            padding-top: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #ccc;
+            height: 30px;
+        }
+
+        div#control.minimized > ul#control_panel {
+            display: table-row;
+        }
+
+        div#control.minimized > ul#control_panel > li {
+            display: table-cell;
+            padding: 0 15px;
+            border-right: 1px solid #fafafa;
+            border-left: 1px solid #ccc;
+        }
+
+        div#control.minimized > ul#control_panel > li > * {
+            float: none;
+        }
+
+        div#control.minimized > ul#control_panel > li:first-child {
+            border-left: none;
+        }
+
+        div#control.minimized > ul#control_panel > li:last-child {
+            border-right: none;
+        }
+
+        ul#control_panel > li > label {
+
+        }
+
+        ul#control_panel > li > span.title {
+            height: 80px;
+            font-size: 1.5em;
+            font-family: Helvetica, Gill, sans-serif ;
+        }
+
+        div#data {
+            position: absolute;
+            width: 100%;
+            overflow: auto;
+            top: 47px;
+            bottom: 0;
+            display: none;
+        }
+
+        div#data.loading {
+            display: block;
+            background: url('http://www.lettersmarket.com/uploads/lettersmarket/blog/loaders/common_gray/ajax_loader_gray_64.gif') no-repeat 50%;
+        }
+
+        div#data.filled {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="control" class="">
+        <ul id="control_panel">
+            <li> <span class="title">VŠECrawler</span> </li>
+            <li>
+                <label>Format</label>
+                <select id="format" >
+                    <option value="html">HTML</option>
+                    <option value="json" class="plain">JSON (plain)</option>
+                    <option value="json">JSON (pretty)</option>
+                </select>
+            </li>
+
+            <li>
+                <label>Language</label>
+                <select id="lang" >
+                    <option value="cs">Czech</option>
+                    <option value="en">English</option>
+                    <option value="sk">Slovak</option>
+                </select>
+            </li>
+
+            <li>
+                <label>Force refresh</label>
+                <input type="checkbox" id="force_refresh" />
+            </li>
+
+            <li>
+                <button id="submit">Send</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="data"> </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#submit").on('click', buttonClick);
+        });
+
+        function buttonClick() {
+            $("#control").addClass("minimized");
+            $("#data").addClass("loading").html("");
+
+            load( {
+                lang: $("#lang option:selected").val(),
+                format: $("#format option:selected").val(),
+                refresh: $("#force_refresh").is(":checked") ? 1 : 0
+            } );
+        }
+
+        function load(input) {
+            $("#submit").prop('disabled', true);
+            $.ajax({
+                type: "GET",
+                url: "data.php",
+                data: input,
+                success: function(data, status, xhr) {
+                    if (input.format == "json") {
+                        if ($("#format option:selected").hasClass("plain")) {
+
+                        } else {
+                            data = "<pre>" + JSON.stringify(JSON.parse(data), undefined, '\t') + "</pre>";
+                        }
+                    } else {
+
+                    }
+
+                    $("#data")
+                            .removeClass()
+                            .addClass("filled")
+                            .html(data);
+
+                    $("#submit").prop('disabled', false);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
